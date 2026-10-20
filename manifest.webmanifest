@@ -1,0 +1,29 @@
+{
+  "id": "./",
+  "name": "Oliva PDF",
+  "short_name": "Oliva PDF",
+  "description": "Lee, comenta, firma y edita tus PDF. Funciona sin conexión y no sube tus archivos a ningún sitio.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#16180F",
+  "theme_color": "#4B5320",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "icons/app-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/app-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/app-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/app-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "file_handlers": [
+    {
+      "action": "./",
+      "accept": { "application/pdf": [".pdf"] },
+      "icons": [{ "src": "icons/documento-256.png", "sizes": "256x256", "type": "image/png" }],
+      "launch_type": "multiple-clients"
+    }
+  ],
+  "launch_handler": { "client_mode": "navigate-new" }
+}

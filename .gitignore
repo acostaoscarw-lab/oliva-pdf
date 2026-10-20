@@ -1,0 +1,3 @@
+# Solo se publica la app web. El lanzador e instalador de Windows se quedan en local.
+windows/
+dist/
