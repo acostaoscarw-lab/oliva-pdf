@@ -1,6 +1,6 @@
 // Service worker de Oliva PDF: guarda la app en el navegador para que funcione sin conexión una vez instalada.
 // Al publicar una versión nueva, cambia VERSION para que los usuarios reciban los archivos actualizados.
-const VERSION = 'oliva-pdf-1.0.0';
+const VERSION = 'oliva-pdf-1.1.0';
 const APP = [
   './', 'index.html', 'manifest.webmanifest',
   'vendor/pdf.min.js', 'vendor/pdf.worker.min.js', 'vendor/pdf-lib.min.js',

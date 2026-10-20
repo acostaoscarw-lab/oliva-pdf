@@ -43,7 +43,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
 .app{height:100%;display:grid;grid-template-rows:auto 1fr}
-.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+/* En la app instalada, la barra superior ocupa la barra de título: se deja libre el hueco de los botones de la ventana
+   (env(titlebar-area-*)) y la barra sirve para arrastrar la ventana. Fuera de la app instalada el cálculo da 0. */
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:env(titlebar-area-height,auto);padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px),env(titlebar-area-x,0px));padding-right:max(16px,env(safe-area-inset-right,0px),calc(100vw - env(titlebar-area-x,0px) - env(titlebar-area-width,100vw) + 12px));background:var(--surface);border-bottom:1px solid var(--line);-webkit-app-region:drag;app-region:drag}
+.topbar button,.topbar input,.topbar label,.topbar a,.topbar select{-webkit-app-region:no-drag;app-region:no-drag}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.01em;font-size:16px}
 .logo{width:30px;height:30px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
 .logo svg{width:18px;height:18px}
@@ -121,6 +124,15 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .floatbar{position:absolute;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow);z-index:5}
 .ib{width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;cursor:pointer;color:var(--fg)}
 .ib:hover{background:var(--accent-soft)}
+.ib[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.zoommenu .check{margin-left:auto;color:var(--accent);font-weight:700}
+.banner{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:58;width:min(400px,calc(100vw - 40px));display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;padding:16px;background:var(--surface);border:1px solid var(--accent);border-radius:12px;box-shadow:var(--shadow)}
+.banner .acts{display:flex;gap:8px;width:100%;justify-content:flex-end}
+.banner .ico{width:34px;height:34px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.banner .txt{flex:1;min-width:220px;display:flex;flex-direction:column}
+.banner .txt span{color:var(--muted);font-size:13px}
+.viewer[data-kind="edtext"] .page{cursor:text}
+.edhint{fill:#4B5320;fill-opacity:.07;stroke:#4B5320;stroke-opacity:.45;stroke-width:.6;stroke-dasharray:2 2;pointer-events:none}
 .floatbar .sep{width:1px;height:20px;background:var(--line);margin:0 4px}
 .pageinput{display:flex;align-items:center;gap:4px;white-space:nowrap;font:13px var(--font-mono);font-variant-numeric:tabular-nums;color:var(--muted);padding:0 4px}
 .pageinput input{width:42px;height:28px;text-align:center;border:1px solid var(--line);border-radius:5px;background:var(--panel);font:inherit;color:var(--fg)}
@@ -128,6 +140,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .zoomval:hover{background:var(--accent-soft)}
 .fbedit{display:flex;align-items:center;gap:6px;height:34px;margin-left:4px;padding:0 14px 0 10px;border:0;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:600;cursor:pointer}
 .fbedit:hover{background:var(--accent-hover)}
+.fbedit[aria-pressed="true"]{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
 
 .view{padding:20px 16px 96px}
 .view-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
@@ -308,7 +321,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
       <button class="dtab" id="tabDoc" role="tab" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z M14 3v4h4"/></svg><strong id="docName">Guía rápida.pdf</strong><span class="badge" id="exampleBadge">Ejemplo</span><span class="badge ro" id="roBadge" hidden>Solo lectura</span><span class="dirty" id="dirtyDot" title="Cambios sin guardar" hidden></span></button>
     </nav>
     <div class="top-actions">
-      <button class="btn icon" id="btnReadOnly" aria-pressed="false" title="Modo solo lectura" aria-label="Modo solo lectura"><svg class="i" viewBox="0 0 24 24"><path d="M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></button>
+      <button class="btn" id="btnInstall" title="Instalar Oliva PDF en este equipo" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H4z M8 20h8 M12 16v4 M12 7v6 M9 10l3 3 3-3"/></svg>Instalar</button>
+      <button class="btn icon" id="btnReadOnly" aria-pressed="false" title="Activar modo solo lectura" aria-label="Modo solo lectura"><svg class="i" viewBox="0 0 24 24"><path id="lockPath" d="M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 6.8-1.2"/></svg></button>
       <button class="btn" id="btnOpen" title="Abrir un PDF o imágenes (Ctrl+O)"><svg class="i" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Abrir</button>
       <button class="btn icon" id="btnPrint" title="Imprimir (Ctrl+P)" aria-label="Imprimir"><svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg></button>
       <button class="btn icon" id="btnProps" title="Propiedades del documento" aria-label="Propiedades del documento"><svg class="i" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8h.01M11 12h1v5h1"/></svg></button>
@@ -352,9 +366,11 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
         <button class="ib" id="nextPage" title="Página siguiente"><svg class="i" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
         <span class="sep"></span>
         <button class="ib" id="zoomOut" title="Alejar"><svg class="i" viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
-        <button class="zoomval" id="zoomVal" title="Ajustar al ancho">100%</button>
+        <button class="zoomval" id="zoomVal" title="Opciones de zoom" aria-haspopup="menu">100%</button>
         <button class="ib" id="zoomIn" title="Acercar"><svg class="i" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button>
-        <button class="ib" id="fitWidth" title="Ajustar al ancho"><svg class="i" viewBox="0 0 24 24"><path d="M4 8V5h3M20 8V5h-3M4 16v3h3M20 16v3h-3M8 12h8"/></svg></button>
+        <button class="ib" id="fitWidth" title="Ajustar al ancho (Ctrl+2)" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M3 12h18 M7 8l-4 4 4 4 M17 8l4 4-4 4"/></svg></button>
+        <button class="ib" id="fitPage" title="Ajustar a la página (Ctrl+0)" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M7 3h10v18H7z M4 8V5 M4 16v3 M20 8V5 M20 16v3"/></svg></button>
+        <button class="ib" id="actualSize" title="Tamaño real 1:1 (Ctrl+1)" aria-pressed="false" style="font:600 12px var(--font-mono)">1:1</button>
         <span class="sep"></span>
         <button class="ib" id="readingMode" title="Modo de lectura (Ctrl+H)" aria-label="Modo de lectura"><svg class="i" viewBox="0 0 24 24"><path d="M3 6c3-1.5 6-1.5 9 0v13c-3-1.5-6-1.5-9 0z M21 6c-3-1.5-6-1.5-9 0v13c3-1.5 6-1.5 9 0z"/></svg></button>
         <button class="fbedit" id="floatEdit" title="Salir del modo de lectura y editar el documento" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z M13 7l4 4"/></svg>Editar</button>
@@ -406,6 +422,16 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
   <button data-act="copy"><svg class="i" viewBox="0 0 24 24"><path d="M8 8h11v13H8z M5 16V3h11"/></svg>Copiar</button>
 </div>
 <div class="ctx" id="ctxMenu" role="menu" hidden></div>
+<div class="banner" id="installBanner" role="dialog" aria-labelledby="installBannerTitle" hidden>
+  <span class="ico"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H4z M8 20h8 M12 16v4 M12 7v6 M9 10l3 3 3-3"/></svg></span>
+  <div class="txt"><strong id="installBannerTitle">Instala Oliva PDF</strong><span>Ábrelo desde el menú Inicio, úsalo sin conexión y elígelo para abrir tus PDF con doble clic.</span></div>
+  <div class="acts"><button class="btn" id="installLater">Ahora no</button><button class="btn primary" id="installNow">Instalar</button></div>
+</div>
+<div class="banner" id="updateBanner" role="status" hidden>
+  <span class="ico"><svg class="i" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7 M20 4v7h-7"/></svg></span>
+  <div class="txt"><strong>Hay una versión nueva de Oliva PDF</strong><span>Recarga para usarla. Guarda antes tus cambios si los tienes.</span></div>
+  <div class="acts"><button class="btn" id="updateLater">Más tarde</button><button class="btn primary" id="updateNow">Recargar</button></div>
+</div>
 
 <div class="modal" id="dlg" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
@@ -498,6 +524,9 @@ const ICON = {
   insert: 'M12 5v14 M5 12h14',
   extract: 'M6 3h8l4 4v14H6z M12 9v7 M9 13l3 3 3-3',
   dup: 'M8 8h11v13H8z M5 16V3h11',
+  fitw: 'M3 12h18 M7 8l-4 4 4 4 M17 8l4 4-4 4',
+  fitp: 'M7 3h10v18H7z M4 8V5 M4 16v3 M20 8V5 M20 16v3',
+  edtext: 'M4 7V5h11v2 M9.5 5v14 M7 19h5 M15 13l4-4 2 2-4 4h-2z',
 };
 const TOOLS = {
   select:  { cat: 'select', kind: 'select', label: 'Seleccionar' },
@@ -520,6 +549,7 @@ const TOOLS = {
   dot:     { cat: 'fill', kind: 'mark', label: 'Punto' },
   fline:   { cat: 'fill', kind: 'seg', label: 'Línea', icon: 'line', type: 'line' },
   sig:     { cat: 'fill', kind: 'sig', label: 'Firmar' },
+  edtext:  { cat: 'edit', kind: 'edtext', label: 'Editar texto' },
   etext:   { cat: 'edit', kind: 'text', label: 'Agregar texto', icon: 'text', type: 'text' },
   image:   { cat: 'edit', kind: 'image', label: 'Agregar imagen' },
   link:    { cat: 'edit', kind: 'box', label: 'Vínculo' },
@@ -531,7 +561,7 @@ const TOOLS = {
 const CAT_TOOLS = {
   comment: [['note', 'hl', 'under', 'strike', 'text'], ['ink', 'erase'], ['line', 'arrow', 'rect', 'ellipse'], ['stamp']],
   fill: [['ftext', 'check', 'cross', 'dot', 'fline', 'sig']],
-  edit: [['etext', 'image', 'link', 'crop'], ['cover', 'redact']],
+  edit: [['edtext', 'etext', 'image', 'link', 'crop'], ['cover', 'redact']],
 };
 const LABELED = new Set(['fill', 'edit']);
 const RAIL = [
@@ -760,7 +790,7 @@ const io = new IntersectionObserver(entries => {
   for (const en of entries){
     const pg = pageOf(en.target.dataset.id); if (!pg) continue;
     pg.visible = en.isIntersecting;
-    if (en.isIntersecting){ renderPage(pg); renderTextLayer(pg); loadFields(pg); }
+    if (en.isIntersecting){ renderPage(pg); renderTextLayer(pg); loadFields(pg); if (state.tool === 'edtext' && !pg.runs && !pg.baseRot) textRuns(pg).then(() => drawAnnots(pg)); }
   }
 }, { root: viewer, rootMargin: '900px 0px' });
 
@@ -995,6 +1025,11 @@ function drawAnnots(pg){
   const svg = pg.svg, svgm = pg.svgm; svg.innerHTML = ''; svgm.innerHTML = '';
   if (state.wm || state.hf) svg.append(pageDecor(pg, state.pages.indexOf(pg), state.pages.length));
   (state.hits.get(pg.id) || []).forEach(r => svgm.append(svgEl('rect', { x: r.x, y: r.y, width: r.w, height: r.h, class: 'hit' + (r.cur ? ' cur' : '') })));
+  if (state.tool === 'edtext' && pg.runs){
+    // Contorno suave de las líneas que se pueden editar.
+    const edited = new Set(pg.annots.filter(a => a.t === 'text' && a.runKey !== undefined).map(a => a.runKey));
+    for (const r of pg.runs) if (!edited.has(r.key)) svg.append(svgEl('rect', { x: r.x - 1.5, y: r.y - 1, width: r.w + 3, height: r.h + 2, rx: 1.5, class: 'edhint' }));
+  }
   for (const a of pg.annots){
     if (a._editing) continue;
     const n = shapeFor(a); n.dataset.aid = a.id;
@@ -1066,6 +1101,7 @@ function onDown(e, pg){
       if (aid){ pushUndo(); pg.annots = pg.annots.filter(a => a.id !== aid); state.selected = null; drawAnnots(pg); refreshComments(); }
       return;
     case 'text': e.preventDefault(); openEditor(pg, x, y, null, 'text'); return;
+    case 'edtext': e.preventDefault(); editTextAt(pg, x, y); return;
     case 'note': e.preventDefault(); openEditor(pg, x - 9, y - 9, null, 'note'); return;
     case 'mark': {
       pushUndo(); const s = state.markSize;
@@ -1226,6 +1262,16 @@ function closeEditor(commit){
   const { ta, pg, x, y, existing, kind, size, color, font } = editor; editor = null;
   const txt = ta.value.replace(/\s+$/, ''); ta.remove();
   if (existing) delete existing._editing;
+  if (existing && existing._fresh){
+    // Primera edición de una línea del PDF (el historial ya se guardó al hacer clic en ella).
+    delete existing._fresh;
+    if (!commit || txt === existing.text){
+      pg.annots = pg.annots.filter(a => a !== existing && !(a.t === 'cover' && a.runKey === existing.runKey));
+      dropUndo();
+    } else if (!txt) pg.annots = pg.annots.filter(a => a !== existing); // vaciar la línea = borrar el texto original
+    else existing.text = txt;
+    drawAnnots(pg); refreshComments(); return;
+  }
   let created = null;
   if (commit && txt && (!existing || existing.text !== txt)){
     pushUndo();
@@ -1255,6 +1301,67 @@ async function placeImage(file){
     const a = { id: uid++, t: 'image', x: p.x - w / 2, y: p.y - h / 2, w, h, img: id };
     p.pg.annots.push(a); afterCreate(p.pg, a);
   }catch(e){ console.error(e); toast('No se pudo leer la imagen.'); }
+}
+
+/* ---------- editar el texto existente del PDF ---------- */
+// Agrupa los fragmentos de texto de pdf.js en líneas editables, con su tamaño, familia y estilo.
+async function textRuns(pg){
+  if (pg.runs) return pg.runs;
+  const tc = await pageText(pg), vp = pg.pdfPage.getViewport({ scale: 1, rotation: pg.baseRot });
+  const items = [];
+  for (const it of tc.items){
+    if (!it.str || !it.str.trim()) continue;
+    const [, b, c, d, e, f] = it.transform;
+    if (Math.abs(b) > .01 || Math.abs(c) > .01) continue; // texto inclinado: no se ofrece para editar
+    const s = Math.abs(d) || 10;
+    const [x1, y1] = vp.convertToViewportPoint(e, f), [x2] = vp.convertToViewportPoint(e + it.width, f);
+    items.push({ x: Math.min(x1, x2), base: y1, w: Math.abs(x2 - x1), s, font: it.fontName, str: it.str, family: (tc.styles[it.fontName] || {}).fontFamily || '' });
+  }
+  items.sort((p, q) => Math.abs(p.base - q.base) > p.s * .3 ? p.base - q.base : p.x - q.x);
+  const runs = [];
+  for (const it of items){
+    const last = runs[runs.length - 1];
+    const gap = last ? it.x - (last.x + last.w) : 0;
+    if (last && Math.abs(last.base - it.base) < it.s * .3 && Math.abs(last.s - it.s) < it.s * .15 && gap < it.s * .8 && gap > -it.s * .3){
+      last.text += (gap > it.s * .15 && !/\s$/.test(last.text) && !/^\s/.test(it.str) ? ' ' : '') + it.str;
+      last.w = it.x + it.w - last.x;
+    } else runs.push({ x: it.x, base: it.base, w: it.w, s: it.s, text: it.str, font: it.font, family: it.family });
+  }
+  runs.forEach((r, k) => { r.key = k; r.text = r.text.trim(); r.y = r.base - r.s * .85; r.h = r.s * 1.12; Object.assign(r, fontInfo(pg, r)); });
+  return (pg.runs = runs);
+}
+function fontInfo(pg, r){
+  let name = '', bold = false, italic = false;
+  try{ const fo = pg.pdfPage.commonObjs.get(r.font); name = fo.name || ''; bold = !!fo.bold || /bold|black|heavy|semibold/i.test(name); italic = !!fo.italic || /italic|oblique/i.test(name); }catch(e){}
+  const all = name + ' ' + r.family;
+  const f = /courier|mono/i.test(all) ? 'Courier' : (/times|georgia|garamond|roman|cambria/i.test(name) || (/serif/i.test(r.family) && !/sans/i.test(r.family))) ? 'Times' : 'Helvetica';
+  return { f, b: bold, i: italic };
+}
+// Color del papel junto al texto, para que el corrector se funda con el fondo.
+function sampleBg(pg, r){
+  try{
+    const k = pg.cv.width / disp(pg)[0];
+    const [dx, dy] = toDisp(pg, Math.max(0, r.x - 2), r.y + r.h / 2);
+    const [R, G, B, A] = pg.cv.getContext('2d', { willReadFrequently: true }).getImageData(Math.floor(dx * k), Math.floor(dy * k), 1, 1).data;
+    if (!k || A < 250) return '#FFFFFF'; // página aún sin dibujar a este zoom: se asume papel blanco
+    return '#' + [R, G, B].map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }catch(e){ return '#FFFFFF'; }
+}
+async function editTextAt(pg, x, y){
+  if (pg.baseRot){ toast('La edición de texto aún no está disponible en páginas giradas dentro del PDF original.'); return; }
+  const r = (await textRuns(pg)).find(r => x >= r.x - 2 && x <= r.x + r.w + 2 && y >= r.y - 2 && y <= r.y + r.h + 2);
+  if (!r){ toast('Haz clic sobre una línea de texto del documento. Para añadir texto nuevo usa «Agregar texto».'); return; }
+  const done = pg.annots.find(a => a.t === 'text' && a.runKey === r.key);
+  if (done){ openEditor(pg, done.x, done.y, done, 'text'); return; }
+  pushUndo();
+  pg.annots.push({ id: uid++, t: 'cover', x: r.x - 1, y: r.y - 1, w: r.w + 2, h: r.h + 2, c: sampleBg(pg, r), runKey: r.key });
+  const a = { id: uid++, t: 'text', x: r.x, y: r.base - r.s * .8, text: r.text, c: '#000000', s: Math.round(r.s * 10) / 10, f: r.f, b: r.b, i: r.i, runKey: r.key, _fresh: true };
+  pg.annots.push(a); refreshComments();
+  openEditor(pg, a.x, a.y, a, 'text');
+}
+function loadRunHints(){
+  if (state.tool !== 'edtext') return;
+  state.pages.forEach(pg => { if (pg.visible && !pg.baseRot) textRuns(pg).then(() => drawAnnots(pg)); });
 }
 
 /* ---------- vínculos y recorte ---------- */
@@ -1387,9 +1494,11 @@ function setTool(t){
   closeEditor(true);
   if (TOOLS[t].cat !== 'select' && !canEdit()) return;
   if (state.view !== 'doc') setView('doc');
+  const was = state.tool;
   state.tool = t; state.cat = TOOLS[t].cat;
   if (state.cat !== 'select') state.lastTool[state.cat] = t;
   viewer.dataset.kind = TOOLS[t].kind;
+  if (was === 'edtext' || t === 'edtext'){ redrawAll(); loadRunHints(); }
   if (t !== 'select'){ selPop.hidden = true; if (state.selected) select(state.selected.pg, null); }
   syncRail(); renderOptbar();
 }
@@ -1401,6 +1510,7 @@ function syncRail(){
     b.disabled = locked; b.style.opacity = locked ? .4 : '';
   });
   const u = $('#railUndo'); if (u){ u.disabled = state.readOnly; u.style.opacity = state.readOnly ? .4 : ''; }
+  syncEditButton();
 }
 const pendingRedactions = () => state.pages.reduce((n, p) => n + p.annots.filter(a => a.t === 'redact').length, 0);
 function renderOptbar(){
@@ -1479,7 +1589,7 @@ function renderOptbar(){
   const tool = state.tool, kind = TOOLS[tool].kind, at = typeOf(tool);
   const props = el('div', 'props'); props.append(el('span', 'ptitle', at === 'text' ? 'Formato' : 'Propiedades'));
   const rerender = fn => v => { fn(v); renderOptbar(); };
-  if (!['erase', 'image'].includes(kind) && !['redact', 'link', 'crop'].includes(at))
+  if (!['erase', 'image', 'edtext'].includes(kind) && !['redact', 'link', 'crop'].includes(at))
     swatches(at === 'cover' ? COVER_COLORS : COLORS, state.colors[at], rerender(hex => state.colors[at] = hex), props);
   if (['ink', 'line', 'arrow', 'rect', 'ellipse'].includes(at)) seg('Grosor', [1, 2, 3, 5, 8], state.width, v => v + ' pt', rerender(v => state.width = v), props);
   if (at === 'text') fontControls({ ...state.font, s: state.fontSize }, rerender(p => { if (p.s) state.fontSize = p.s; else Object.assign(state.font, p); }), props);
@@ -1491,7 +1601,7 @@ function renderOptbar(){
   }
   if (kind === 'sig'){ button(state.signature ? 'Cambiar firma' : 'Crear firma', openSigPad, false, props); if (state.signature) hint('Haz clic en la página para colocar la firma.', props); }
   const hints = { erase: 'Haz clic en una marca para eliminarla.', image: 'Haz clic en la página donde quieras colocar la imagen.' };
-  const thints = { link: 'Dibuja un recuadro sobre la zona que debe abrir el vínculo.', crop: 'Dibuja el área de la página que quieres conservar.', redact: 'Marca las zonas a eliminar y pulsa Aplicar censura.' };
+  const thints = { edtext: 'Haz clic en una línea del documento para cambiar su texto. Al guardar, el texto original queda tapado por el nuevo.', link:'Dibuja un recuadro sobre la zona que debe abrir el vínculo.', crop: 'Dibuja el área de la página que quieres conservar.', redact: 'Marca las zonas a eliminar y pulsa Aplicar censura.' };
   if (hints[kind]) hint(hints[kind], props); else if (thints[at]) hint(thints[at], props);
   if (props.childNodes.length > 1) bar.append(props);
   if (state.cat !== 'edit'){
@@ -1654,11 +1764,13 @@ function showMenu(x, y, title, items){
   if (title){ const h = document.createElement('div'); h.className = 'head'; h.textContent = title; ctx.append(h); }
   for (const it of items){
     if (it === '-'){ ctx.append(document.createElement('hr')); continue; }
-    const b = document.createElement('button'); b.setAttribute('role', 'menuitem'); b.innerHTML = icon(ICON[it.icon]) + esc(it.label);
+    const b = document.createElement('button'); b.setAttribute('role', 'menuitem');
+    b.innerHTML = (it.icon ? icon(ICON[it.icon]) : '<span style="width:20px;flex:none"></span>') + esc(it.label);
     b.disabled = !!it.disabled; if (it.disabled) b.style.opacity = .45;
     b.onclick = () => { hideMenu(); it.run(); }; ctx.append(b);
   }
   ctx.hidden = false;
+  if (y === 'above') y = showMenu.anchorTop - ctx.offsetHeight - 8;
   ctx.style.left = Math.max(8, Math.min(x, innerWidth - ctx.offsetWidth - 8)) + 'px';
   ctx.style.top = Math.max(8, Math.min(y, innerHeight - ctx.offsetHeight - 8)) + 'px';
   ctx.querySelector('button:not(:disabled)')?.focus();
@@ -1772,21 +1884,65 @@ viewer.addEventListener('scroll', () => {
     setCurrent(cur);
   });
 });
-function setScale(s){
-  s = Math.max(.25, Math.min(4, s));
-  const ratio = viewer.scrollTop / Math.max(1, viewer.scrollHeight);
+// mode: 'custom' (zoom elegido), 'width' (ajustar al ancho), 'page' (página completa), 'actual' (1:1).
+// En los modos de ajuste el zoom se recalcula al cambiar el tamaño de la ventana.
+let zoomMode = { mode: 'custom' };
+function setScale(s, anchor, mode = { mode: 'custom' }){
+  s = Math.max(.1, Math.min(8, s));
+  zoomMode = mode;
+  const vr = viewer.getBoundingClientRect(), old = state.scale;
+  // Punto que debe quedar fijo en pantalla: el cursor (Ctrl+rueda) o la parte superior del visor.
+  const ax = anchor ? anchor.clientX - vr.left : viewer.clientWidth / 2, ay = anchor ? anchor.clientY - vr.top : 0;
+  const cx = viewer.scrollLeft + ax, cy = viewer.scrollTop + ay;
   state.scale = s; $('#zoomVal').textContent = Math.round(s * 100) + '%';
   closeEditor(true);
   state.pages.forEach(pg => { if (pg.el){ sizePage(pg); if (state.selected && state.selected.pg === pg) drawAnnots(pg); } });
-  viewer.scrollTop = ratio * viewer.scrollHeight;
+  const k = s / old;
+  viewer.scrollLeft = cx * k - ax; viewer.scrollTop = cy * k - ay;
   state.pages.forEach(pg => { if (pg.visible){ renderPage(pg); renderTextLayer(pg); } });
+  ['fitWidth', 'fitPage', 'actualSize'].forEach((id, n) => $('#' + id).setAttribute('aria-pressed', zoomMode.mode === ['width', 'page', 'actual'][n]));
 }
 function fitWidth(cap){
   const maxW = Math.max(...state.pages.map(p => disp(p)[0]));
   let s = (viewer.clientWidth - 48) / maxW;
   if (cap) s = Math.min(s, 1.25);
-  setScale(s);
+  setScale(s, null, { mode: 'width', cap });
 }
+function fitPage(){
+  const pg = state.pages[state.current] || state.pages[0], [w, h] = disp(pg);
+  setScale(Math.min((viewer.clientWidth - 48) / w, (viewer.clientHeight - 56) / h), null, { mode: 'page' });
+  goToPage(state.current);
+}
+function actualSize(){ setScale(1, null, { mode: 'actual' }); }
+const zoomBy = (factor, anchor) => setScale(state.scale * factor, anchor);
+function zoomMenu(){
+  const r = $('#zoomVal').getBoundingClientRect(), cur = Math.round(state.scale * 100);
+  const mark = on => on ? '  ✓' : '';
+  showMenu.anchorTop = r.top;
+  showMenu(r.left - 60, 'above', `Zoom · ${cur} %`, [
+    { icon: 'fitw', label: 'Ajustar al ancho' + mark(zoomMode.mode === 'width'), run: () => fitWidth(false) },
+    { icon: 'fitp', label: 'Ajustar a la página' + mark(zoomMode.mode === 'page'), run: fitPage },
+    { label: 'Tamaño real (1:1)' + mark(zoomMode.mode === 'actual'), run: actualSize },
+    '-',
+    ...[50, 75, 100, 125, 150, 200, 300, 400].map(z => ({ label: z + ' %' + mark(zoomMode.mode === 'custom' && cur === z), run: () => setScale(z / 100) })),
+  ]);
+}
+let resizeT = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeT);
+  resizeT = setTimeout(() => {
+    if (state.view !== 'doc') return;
+    if (zoomMode.mode === 'width') fitWidth(zoomMode.cap);
+    else if (zoomMode.mode === 'page') fitPage();
+  }, 150);
+});
+// Ctrl+rueda amplía el documento, no la interfaz de Oliva PDF.
+window.addEventListener('wheel', e => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  if (state.view !== 'doc' || !e.target.closest('.stage')) return;
+  zoomBy(Math.exp(-e.deltaY * .0025), e);
+}, { passive: false });
 
 /* ---------- panel lateral ---------- */
 function setTab(name){
@@ -2359,7 +2515,9 @@ function setReadOnly(on, silent){
     if (state.selected) select(state.selected.pg, null);
   }
   const b = $('#btnReadOnly');
-  b.setAttribute('aria-pressed', on); b.title = on ? (state.roLocked ? 'Edición restringida por el autor' : 'Desactivar modo solo lectura') : 'Activar modo solo lectura';
+  b.setAttribute('aria-pressed', on); b.title = on ? (state.roLocked ? 'Edición restringida por el autor' : 'Solo lectura activado. Pulsa para habilitar la edición') : 'Edición habilitada. Pulsa para activar el modo solo lectura';
+  // Candado cerrado en solo lectura; abierto cuando se puede editar.
+  $('#lockPath').setAttribute('d', on ? 'M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3' : 'M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 6.8-1.2');
   $('#roBadge').hidden = !on;
   document.querySelectorAll('.formlayer [data-fkey]').forEach(el => el.disabled = on || !!el.dataset.locked);
   document.querySelectorAll('#thumbList .thumb').forEach(t => t.draggable = !on);
@@ -2378,15 +2536,21 @@ function toggleReading(force){
   if (on) toast(state.readOnly ? 'Modo de lectura. Pulsa «Editar» abajo para modificar el documento.' : 'Modo de lectura. Pulsa Esc o Ctrl+H para salir.');
 }
 function syncEditButton(){
-  const show = state.readOnly || $('.app').classList.contains('reading');
-  $('#floatEdit').hidden = !show || state.roLocked;
+  const b = $('#floatEdit'); if (!b) return;
+  b.hidden = state.roLocked;
+  const editing = state.cat === 'edit' && !state.readOnly && !$('.app').classList.contains('reading');
+  b.setAttribute('aria-pressed', editing);
+  b.title = editing ? 'Cerrar las herramientas de edición' : 'Abrir las herramientas de edición';
+  b.lastChild.textContent = editing ? 'Editando' : 'Editar';
 }
 function startEditing(){
   if (state.roLocked){ canEdit(); return; }
+  if ($('#floatEdit').getAttribute('aria-pressed') === 'true'){ setCat('select'); return; }
+  const wasLocked = state.readOnly;
   if (state.readOnly) setReadOnly(false, true);
-  toggleReading(false);
-  setCat('edit');
-  toast('Edición habilitada. Elige una herramienta en la barra superior.');
+  if ($('.app').classList.contains('reading')) toggleReading(false);
+  setTool('edtext');
+  toast(wasLocked ? 'Edición habilitada. Haz clic en un texto para cambiarlo o elige otra herramienta arriba.' : 'Haz clic en un texto para cambiarlo o elige otra herramienta arriba.');
 }
 
 /* ---------- inicio y documentos recientes ---------- */
@@ -2612,7 +2776,14 @@ let installPrompt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; syncInstallCard(); });
 window.addEventListener('appinstalled', () => { installPrompt = null; syncInstallCard(); toast('Oliva PDF se instaló. Ya puedes elegirlo para abrir tus PDF.', 5000); });
 const isInstalledApp = () => matchMedia('(display-mode: standalone), (display-mode: window-controls-overlay)').matches;
+const BANNER_KEY = 'oliva.instalarDescartado';
+function bannerDismissed(){
+  try{ const t = +localStorage.getItem(BANNER_KEY); return t && Date.now() - t < 14 * 864e5; }catch(e){ return false; }
+}
 function syncInstallCard(){
+  // Botón visible arriba y aviso flotante en el primer uso (se puede posponer dos semanas).
+  $('#btnInstall').hidden = !installPrompt;
+  $('#installBanner').hidden = !installPrompt || isInstalledApp() || bannerDismissed();
   const card = $('#installCard'); if (!card) return;
   card.hidden = isInstalledApp() || location.protocol === 'file:';
   $('#installBtn').hidden = !installPrompt;
@@ -2627,7 +2798,12 @@ async function installApp(){
   if (outcome === 'accepted') installPrompt = null;
   syncInstallCard();
 }
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(e => console.warn('Sin modo sin conexión:', e));
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  // Si ya había una versión guardada y llega otra, se avisa para recargar (no la primera vez que se instala).
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) $('#updateBanner').hidden = false; });
+  navigator.serviceWorker.register('sw.js').then(reg => reg.update()).catch(e => console.warn('Sin modo sin conexión:', e));
+}
 
 async function boot(){
   buildRail(); syncRail(); syncInstallCard();
@@ -2668,9 +2844,12 @@ $('#btnSave').onclick = savePdf;
 $('#prevPage').onclick = () => goToPage(Math.max(0, state.current - 1));
 $('#nextPage').onclick = () => goToPage(Math.min(state.pages.length - 1, state.current + 1));
 $('#pageNum').addEventListener('change', e => { const n = parseInt(e.target.value, 10); if (n >= 1 && n <= state.pages.length) goToPage(n - 1); else e.target.value = state.current + 1; });
-$('#zoomIn').onclick = () => setScale(state.scale * 1.2);
-$('#zoomOut').onclick = () => setScale(state.scale / 1.2);
-$('#zoomVal').onclick = $('#fitWidth').onclick = () => fitWidth(false);
+$('#zoomIn').onclick = () => zoomBy(1.2);
+$('#zoomOut').onclick = () => zoomBy(1 / 1.2);
+$('#zoomVal').onclick = zoomMenu;
+$('#fitWidth').onclick = () => fitWidth(false);
+$('#fitPage').onclick = fitPage;
+$('#actualSize').onclick = actualSize;
 document.querySelectorAll('.tabs [data-tab]').forEach(b => b.onclick = () => setTab(b.dataset.tab));
 const si = $('#searchInput');
 si.addEventListener('keydown', e => {
@@ -2684,7 +2863,10 @@ $('#tabDoc').onclick = () => setView('doc');
 $('#btnReadOnly').onclick = () => setReadOnly(!state.readOnly);
 $('#readingMode').onclick = () => toggleReading();
 $('#floatEdit').onclick = startEditing;
-$('#installBtn').onclick = installApp;
+$('#installBtn').onclick = $('#btnInstall').onclick = $('#installNow').onclick = installApp;
+$('#installLater').onclick = () => { try{ localStorage.setItem(BANNER_KEY, Date.now()); }catch(e){} $('#installBanner').hidden = true; };
+$('#updateNow').onclick = async () => { if (await confirmDiscard()){ state.dirty = false; location.reload(); } };
+$('#updateLater').onclick = () => { $('#updateBanner').hidden = true; };
 $('#homeOpen').onclick = () => $('#fileOpen').click();
 $('#homeCreate').onclick = () => $('#fileImages').click();
 $('#hnStart').onclick = () => setView('home');
@@ -2708,6 +2890,13 @@ document.addEventListener('keydown', e => {
   if (mod && k === 'o'){ e.preventDefault(); $('#fileOpen').click(); return; }
   if (mod && k === 'p'){ e.preventDefault(); printPdf(); return; }
   if (mod && k === 'h'){ e.preventDefault(); toggleReading(); return; }
+  // Zoom del documento con el teclado (evita que el navegador amplíe toda la interfaz).
+  if (mod && ['+', '=', '-', '_', '0', '1', '2'].includes(e.key)){
+    e.preventDefault(); if (state.view !== 'doc') return;
+    if (e.key === '+' || e.key === '=') zoomBy(1.2); else if (e.key === '-' || e.key === '_') zoomBy(1 / 1.2);
+    else if (e.key === '0') fitPage(); else if (e.key === '1') actualSize(); else fitWidth(false);
+    return;
+  }
   if (typing) return;
   if (e.key === 'Escape' && $('.app').classList.contains('reading')){ toggleReading(false); return; }
   if (e.key === ' ' && state.view === 'doc' && !spacePan && state.tool !== 'pan'){ e.preventDefault(); spacePan = true; viewer.dataset.kind = 'pan'; return; }
