@@ -26,6 +26,10 @@ Tus documentos no salen de tu equipo: Oliva PDF los abre, edita y guarda dentro 
 - Organizar: reordenar, girar, insertar, extraer, eliminar y dividir páginas; combinar archivos.
 - Convertir: crear PDF desde imágenes; exportar a Word (texto), texto o imágenes; comprimir; reconocer texto (OCR).
 - Revisar: buscar, comparar versiones, propiedades del documento, imprimir, modo de lectura y modo solo lectura.
+- Comentarios como en Acrobat: autor, fecha, respuestas y estado «Completado», guardados como notas PDF reales.
+- Marcadores: crear, renombrar, anidar y eliminar; se guardan en el PDF.
+- Proteger: abrir PDF con contraseña, quitarla o ponerla, y limitar impresión, copia y cambios.
+- Guardar sobrescribiendo el original (Edge y Chrome) o como un archivo nuevo; al cerrar pregunta qué hacer con los cambios.
 
 ## Bibliotecas de terceros
 

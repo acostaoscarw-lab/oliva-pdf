@@ -1,6 +1,6 @@
 # Avisos de terceros
 
-Oliva PDF incluye en `vendor/` las siguientes bibliotecas, sin modificar, descargadas de cdnjs y verificadas contra sus hashes SRI publicados.
+Oliva PDF incluye en `vendor/` las siguientes bibliotecas, sin modificar. PDF.js se descargó de cdnjs y se verificó contra sus hashes SRI; @cantoo/pdf-lib y @pdf-lib/fontkit se extrajeron de sus paquetes oficiales de npm tras verificar su hash de integridad.
 
 ## PDF.js 3.11.174
 
@@ -11,11 +11,20 @@ Oliva PDF incluye en `vendor/` las siguientes bibliotecas, sin modificar, descar
 
 Los archivos conservan su aviso de licencia original en la cabecera.
 
-## pdf-lib 1.17.1
+## @cantoo/pdf-lib 2.11.1 (versión de pdf-lib con soporte de cifrado)
 
 - Archivo: `vendor/pdf-lib.min.js`
-- Copyright (c) 2019 Andrew Dillon
-- Licencia: MIT — https://github.com/Hopding/pdf-lib/blob/master/LICENSE.md
+- Basado en pdf-lib, Copyright (c) 2019 Andrew Dillon; mantenido por Cantoo
+- Licencia: MIT — https://github.com/cantoo-scribe/pdf-lib
+- Se usa para abrir PDF protegidos con contraseña, quitar la contraseña y proteger documentos.
+
+## @pdf-lib/fontkit 1.1.1
+
+- Archivo: `vendor/fontkit.umd.min.js`
+- Basado en fontkit, Copyright (c) Devon Govett; licencia MIT — https://github.com/Hopding/fontkit
+- Se usa para incrustar la fuente original de un texto editado.
+
+## Licencia MIT (pdf-lib y fontkit)
 
 ```
 MIT License
